@@ -1,7 +1,9 @@
-import { Box, Button, Card, CardContent, Container, Divider, IconButton, InputAdornment, LinearProgress, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, LinearProgress, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
 import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, FaceRounded, AddCircleOutlineRounded } from '@mui/icons-material'
-import {useState} from 'react'
-import {Link as RouterLink } from 'react-router-dom'
+import { useState } from 'react'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { app } from '../../firebase/firebase'
 const getPasswordStrength = (password: string): number => {
     let score = 0
     if (password.length >= 6) score++
@@ -27,10 +29,42 @@ const strengthColors: Array<'error' | 'warning' | 'info' | 'primary' | 'success'
     'primary',
     'success'
 ]
+
 const SignIn = () => {
-     const [password, setPassword] = useState<string>('')
+    const [loading, setLoading] = useState(false)
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [error, setError] = useState('')
+    const navigate = useNavigate()
+    const auth = getAuth(app);
+    
 
     const strength = getPasswordStrength(password)
+
+    const handleSignUp = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        if (password !== confirmPassword) {
+            setError('As senhas não coincidem.')
+            setLoading(false)
+            return
+        }
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+            await updateProfile(userCredential.user, { displayName: name })
+            navigate('/home')
+        } catch (err: any) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const isFormValid = name && email && password && confirmPassword && password === confirmPassword && strength >= 2
+
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100vh ' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '400px', height: '680px' }}>
@@ -38,7 +72,6 @@ const SignIn = () => {
                     <CardContent>
                         <Box>
                             <Stack direction='row'>
-
                                 <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
                                     <TipsAndUpdatesRounded color='primary' sx={{ fontSize: '20px', }} />
@@ -48,18 +81,20 @@ const SignIn = () => {
                         <Box sx={{ pt: 5 }}>
                             <Stack direction='column' gap={2}>
                                 <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Sign In  </Typography>
-                                <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} >
+                                <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} onSubmit={handleSignUp}>
                                     <TextField
                                         fullWidth
                                         size='small'
                                         type='text'
                                         label='Digite seu nome'
                                         variant='outlined'
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton>
-                                                        < FaceRounded />
+                                                        <FaceRounded />
                                                     </IconButton>
                                                 </InputAdornment>
                                             )
@@ -72,11 +107,13 @@ const SignIn = () => {
                                         type='email'
                                         label='E-mail'
                                         variant='outlined'
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton>
-                                                        < AlternateEmailRounded />
+                                                        <AlternateEmailRounded />
                                                     </IconButton>
                                                 </InputAdornment>
                                             )
@@ -90,18 +127,18 @@ const SignIn = () => {
                                         label='Senha'
                                         variant='outlined'
                                         value={password}
-                                        onChange={(e)=> (setPassword(e.target.value))}
+                                        onChange={e => setPassword(e.target.value)}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton>
-                                                        < KeyRounded />
+                                                        <KeyRounded />
                                                     </IconButton>
                                                 </InputAdornment>
                                             )
                                         }}
                                     />
-                                     <Box sx={{ mt: 2 }}>
+                                    <Box sx={{ mt: 2 }}>
                                         <LinearProgress
                                             variant="determinate"
                                             value={(strength + 1) * 20}
@@ -119,24 +156,33 @@ const SignIn = () => {
                                         type='password'
                                         label='Confirme a sua senha'
                                         variant='outlined'
+                                        value={confirmPassword}
+                                        onChange={e => setConfirmPassword(e.target.value)}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton>
-                                                        < KeyRounded />
+                                                        <KeyRounded />
                                                     </IconButton>
                                                 </InputAdornment>
                                             )
                                         }}
                                     />
-                                    <Button 
+                                    {error && (
+                                        <Typography color="error" sx={{ mt: 1 }}>
+                                            {error}
+                                        </Typography>
+                                    )}
+                                    <Button
                                         variant='contained'
-                                        sx={{mt:2}}
+                                        sx={{ mt: 2 }}
                                         fullWidth
-                                        disabled
-                                        endIcon={<AddCircleOutlineRounded/>}
+                                        type="submit"
+                                        disabled={!isFormValid || loading}
+                                        endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AddCircleOutlineRounded />}
                                     >
-                                            Criar Conta</Button>
+                                        Criar Conta
+                                    </Button>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Typography variant='h6'>Ou</Typography>
@@ -147,16 +193,13 @@ const SignIn = () => {
                                     </Button>
                                 </Box>
                             </Stack>
-
                         </Box>
                         <Container>
-
-                            <Divider  />
+                            <Divider />
                         </Container>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
-                            <Typography >Já tem uma conta? <MuiLink component={RouterLink} to="/login" sx={{ textDecoration: 'none', cursor: 'pointer' }}>Faça login!</MuiLink> </Typography>
+                            <Typography>Já tem uma conta? <MuiLink component={RouterLink} to="/login" sx={{ textDecoration: 'none', cursor: 'pointer' }}>Faça login!</MuiLink> </Typography>
                         </Box>
-
                     </CardContent>
                 </Card>
             </Box>
