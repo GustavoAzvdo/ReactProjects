@@ -1,5 +1,5 @@
 //Componentes
-import { Box, Button, Card, CardContent, Grid, Typography, TextField, Autocomplete, Stack } from '@mui/material'
+import { Box, Button, Card, CardContent, Grid, Typography, TextField, Autocomplete, Stack, FormControl, Radio, RadioGroup, FormControlLabel, Checkbox, FormGroup } from '@mui/material'
 
 //iCONES
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
@@ -11,7 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-import './Filtro.css'
+import { Check, CheckBox } from '@mui/icons-material';
 
 type Nivel = {
     emoji: string,
@@ -52,7 +52,7 @@ const Filtro = () => {
                                         {option.emoji} - {option.msg}
                                     </li>
                                 )}
-                                sx={{ width: '100%' }}
+                                sx={{ width: '100%', pt: '8px' }}
                                 disableClearable
                                 disablePortal
                                 disableCloseOnSelect
@@ -74,7 +74,14 @@ const Filtro = () => {
                                 </DemoContainer>
                             </LocalizationProvider>
                         </Grid>
+                        <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ display: 'flex' , alignItems:'center'}}>
+                            <Box  >
+                                <FormGroup>
 
+                                    <FormControlLabel control={<Checkbox defaultChecked/>} label='Mostrar todos'/>
+                                </FormGroup>
+                            </Box>
+                        </Grid>
                     </Stack>
                 </CardContent>
             </Card>
