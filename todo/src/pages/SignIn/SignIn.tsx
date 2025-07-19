@@ -2,7 +2,7 @@ import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, I
 import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, FaceRounded, AddCircleOutlineRounded } from '@mui/icons-material'
 import { useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
 import { app } from '../../firebase/firebase'
 const getPasswordStrength = (password: string): number => {
     let score = 0
@@ -39,7 +39,7 @@ const SignIn = () => {
     const [error, setError] = useState('')
     const navigate = useNavigate()
     const auth = getAuth(app);
-    
+
 
     const strength = getPasswordStrength(password)
 
@@ -63,6 +63,22 @@ const SignIn = () => {
         }
     }
 
+    const handleGoogleSignIn = async () => {
+        setError('');
+        setLoading(true);
+        const provider = new GoogleAuthProvider();
+         provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+            await signInWithPopup(auth, provider);
+            // Se o usuário já existe, faz login normalmente
+            // Se não existe, cria a conta com as infos do Google
+            navigate('/home');
+        } catch (err: any) {
+            setError('Erro ao autenticar com o Google');
+        } finally {
+            setLoading(false);
+        }
+    };
     const isFormValid = name && email && password && confirmPassword && password === confirmPassword && strength >= 2
 
     return (
@@ -188,7 +204,7 @@ const SignIn = () => {
                                     <Typography variant='h6'>Ou</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2 }}>
-                                    <Button variant='outlined' endIcon={<Google />} sx={{ py: 1 }}>
+                                    <Button variant='outlined' endIcon={<Google />} sx={{ py: 1 }} onClick={handleGoogleSignIn}>
                                         <Typography>Criar conta com o Google</Typography>
                                     </Button>
                                 </Box>
