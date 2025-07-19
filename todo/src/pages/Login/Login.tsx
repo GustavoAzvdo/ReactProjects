@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const auth = getAuth(app);
@@ -18,7 +18,7 @@ const Login = () => {
         setError('');
         setLoading(true);
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+           await signInWithEmailAndPassword(auth, email, password);
             // Usuário autenticado, redireciona para home
             navigate('/home');
         } catch (err: any) {
@@ -32,7 +32,7 @@ const Login = () => {
         setError('');
         setLoading(true);
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
+         provider.setCustomParameters({ prompt: 'select_account' });
         try {
             await signInWithPopup(auth, provider);
             navigate('/home');
