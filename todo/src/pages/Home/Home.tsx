@@ -14,6 +14,12 @@ import TitleTarefas from '../../components/TitleTarefas/TitleTarefas';
 import Filtro from '../../components/Filtro/Filtro';
 import TotalTarerfas from '../../components/TotalTarefas.tsx/TotalTarerfas';
 
+//firebase
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { app } from '../../firebase/firebase';
+import { useState } from 'react';
+
 type Nivel = {
   emoji: string,
   msg: string
@@ -26,6 +32,32 @@ const nivel: Nivel[] = [
 ]
 
 const Home = () => {
+  const [task, setTask] = useState('');
+  const [priority, setPriority] = useState<Nivel | null>(null);
+
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const handleAddTask = async () => {
+    const user = auth.currentUser;
+    if (!user || !task || !priority) return;
+    try {
+      await addDoc(collection(db, "tasks"), {
+        uid: user.uid,
+        task,
+        priority: priority.msg,
+        emoji: priority.emoji,
+        completed: false,
+        createdAt: new Date()
+      });
+      setTask('');
+      setPriority(null);
+      // Atualize a lista de tarefas se necessário
+    } catch (err) {
+      // Trate o erro
+      console.error(err);
+    }
+  };
   return (
     <>
       <Navtab />
@@ -56,12 +88,21 @@ const Home = () => {
                       fullWidth
                       label="Digite sua Task"
                       variant="outlined"
-
+                      value={task}
+                      onChange={e => setTask(e.target.value)}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ mb: 2 }}>
                     <Autocomplete
                       options={nivel}
+                      value={priority ?? undefined}
+                      onChange={(_, value) => {
+                        if (typeof value === 'object' && value !== null && 'emoji' in value && 'msg' in value) {
+                          setPriority(value as Nivel);
+                        } else {
+                          setPriority(null);
+                        }
+                      }}
                       renderInput={(params) => <TextField {...params} label="Prioridade" variant="outlined" />}
                       renderOption={(props, option) => (
                         <li {...props}>
@@ -81,10 +122,17 @@ const Home = () => {
                       selectOnFocus
                       clearOnBlur
                       handleHomeEndKeys
+                      
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ mb: 2 }}>
-                    <Button variant="contained" color="primary" fullWidth endIcon={<AddTaskRoundedIcon/>}>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      fullWidth 
+                      endIcon={<AddTaskRoundedIcon />}
+                      onClick={handleAddTask}
+                    >
                       Adicionar Task
                     </Button>
                   </Grid>

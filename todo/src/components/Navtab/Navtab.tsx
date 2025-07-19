@@ -11,14 +11,25 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TipsAndUpdatesRoundedIcon from '@mui/icons-material/TipsAndUpdatesRounded';
-import { Link as RouterLink} from 'react-router-dom';
-
-
+import { Link as RouterLink } from 'react-router-dom';
+import { Stack } from '@mui/material';
+import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
+import { app } from '../../firebase/firebase';
+import { useState, useEffect } from 'react'
 const settings = ['Logout'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -34,6 +45,8 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  const auth = getAuth(app);
+  // use 'user' from state instead of redeclaring
 
   return (
     <AppBar position="static">
@@ -44,7 +57,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-         
+
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -85,7 +98,7 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-            
+
             </Menu>
           </Box>
           <TipsAndUpdatesRoundedIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
@@ -108,22 +121,18 @@ function ResponsiveAppBar() {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {/* {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))} */}
+
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Abrir configurações">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            <Stack direction='row' sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h6' sx={{ mr: 2 }}>Olá, {user?.displayName}</Typography>
+              <Tooltip title="Abrir configurações">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt={user?.displayName ?? ''} src={user?.photoURL ?? ''} />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
@@ -142,7 +151,7 @@ function ResponsiveAppBar() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography><RouterLink to={'/login'} style={{textDecoration: 'none', color:'black'}}>{setting}</RouterLink></Typography>
+                  <Typography><RouterLink to={'/login'} style={{ textDecoration: 'none', color: 'black' }}>{setting}</RouterLink></Typography>
                 </MenuItem>
               ))}
             </Menu>
