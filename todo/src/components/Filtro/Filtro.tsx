@@ -1,5 +1,5 @@
 //Componentes
-import { Box, Button, Card, CardContent, Grid, Typography, TextField, Autocomplete, Stack, FormControl, Radio, RadioGroup, FormControlLabel, Checkbox, FormGroup } from '@mui/material'
+import { Box, Button, Card, CardContent, Grid, Typography, TextField, Autocomplete, Stack, FormControlLabel, Checkbox, FormGroup } from '@mui/material'
 
 //iCONES
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
@@ -11,7 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-import { Check, CheckBox } from '@mui/icons-material';
+
 
 type Nivel = {
     emoji: string,
@@ -46,7 +46,7 @@ const Filtro = () => {
                             <Autocomplete
                                 options={nivel}
                                 renderInput={(params) => <TextField {...params} label="Prioridade" variant="outlined" />}
-                                renderOption={(props, option, { selected }) => (
+                                renderOption={(props, option) => (
                                     <li {...props}>
 
                                         {option.emoji} - {option.msg}

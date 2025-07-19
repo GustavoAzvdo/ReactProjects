@@ -45,7 +45,7 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  const auth = getAuth(app);
+   getAuth(app);
   // use 'user' from state instead of redeclaring
 
   return (
