@@ -11,20 +11,25 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-
+import { useState } from 'react'
 
 type Nivel = {
+    id: number,
     emoji: string,
     msg: string
 }
 
 const nivel: Nivel[] = [
-    { emoji: '😎', msg: 'Suave' },
-    { emoji: '😐', msg: 'Normal' },
-    { emoji: '🤯', msg: 'Urgente' }
+    { id: 1, emoji: '😎', msg: 'Suave' },
+    { id: 2, emoji: '😐', msg: 'Normal' },
+    { id: 3, emoji: '🤯', msg: 'Urgente' }
 ]
 
 const Filtro = () => {
+    const [priority, setPriority] = useState<Nivel | null>(null);
+
+    
+    
     return (
         <Grid size={{ xs: 12, sm: 12, md: 12 }}>
             <Card elevation={3} sx={{ mb: 3 }}>
@@ -45,18 +50,26 @@ const Filtro = () => {
                         <Grid size={{ xs: 12, sm: 12, md: 2 }}>
                             <Autocomplete
                                 options={nivel}
+                                value={priority}
+                                onChange={(_, value) => {
+                                    if (typeof value === 'object' && value !== null && 'emoji' in value && 'msg' in value) {
+                                        setPriority(value as Nivel);
+                                    } else {
+                                        setPriority(null);
+                                    }
+                                }}
                                 renderInput={(params) => <TextField {...params} label="Prioridade" variant="outlined" />}
                                 renderOption={(props, option) => (
-                                    <li {...props}>
+                                    <li {...props} key={option.id}>
 
-                                        {option.emoji} - {option.msg}
+                                        {option.msg}
                                     </li>
                                 )}
-                                sx={{ width: '100%', pt: '8px' }}
-                                disableClearable
+                                sx={{ width: '100%', pt: 1 }}
+
                                 disablePortal
                                 disableCloseOnSelect
-                                getOptionLabel={(option) => typeof option === 'string' ? option : `${option.emoji} - ${option.msg}`}
+                                getOptionLabel={(option) => typeof option === 'string' ? option : `${option.msg}`}
                                 isOptionEqualToValue={(option, value) => option === value}
 
                                 freeSolo
@@ -64,6 +77,7 @@ const Filtro = () => {
                                 selectOnFocus
                                 clearOnBlur
                                 handleHomeEndKeys
+
                             />
 
                         </Grid>
@@ -74,11 +88,10 @@ const Filtro = () => {
                                 </DemoContainer>
                             </LocalizationProvider>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ display: 'flex' , alignItems:'center'}}>
+                        <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Box  >
                                 <FormGroup>
-
-                                    <FormControlLabel control={<Checkbox defaultChecked/>} label='Mostrar todos'/>
+                                    <FormControlLabel control={<Checkbox defaultChecked />} label='Mostrar todas as tarefas' />
                                 </FormGroup>
                             </Box>
                         </Grid>

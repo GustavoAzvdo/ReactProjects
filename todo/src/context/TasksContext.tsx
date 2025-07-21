@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebase/firebase";
 
@@ -19,6 +19,8 @@ type TasksContextType = {
   addTask: (task: Omit<Task, "id" | "createdAt" | "uid">) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   fetchTasks: () => Promise<void>;
+  updateTask: (id: string, completed: boolean) => Promise<void>;
+
 };
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -27,7 +29,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, () => {
       fetchTasks();
@@ -82,8 +84,14 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     await fetchTasks();
   };
 
+  const updateTask = async (id: string, completed: boolean) => {
+    const db = getFirestore(app);
+    const taskRef = doc(db, "tasks", id);
+    await updateDoc(taskRef, { completed });
+    fetchTasks();
+  }
   return (
-    <TasksContext.Provider value={{ tasks, loading, addTask, deleteTask, fetchTasks }}>
+    <TasksContext.Provider value={{ tasks, loading, addTask, deleteTask, fetchTasks, updateTask }}>
       {children}
     </TasksContext.Provider>
   );
