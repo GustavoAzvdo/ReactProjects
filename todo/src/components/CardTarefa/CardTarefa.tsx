@@ -1,17 +1,27 @@
 import { Grid, Stack, Card, CardContent, Box, Checkbox, Typography, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert } from '@mui/material'
 import { DeleteRounded } from '@mui/icons-material'
-import { getFirestore, doc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from '../../firebase/firebase';
+import { useTasks } from '../../context/TasksContext';
+
+const TaskColor: Record<string, "error" | "primary" | "success"> = {
+  urgente: "error",
+  normal: "primary",
+  suave: "success",
+};
+
 
 const CardTarefa = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const [openDialog, setOpenDialog] = useState(false);
+ 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const { deleteTask, updateTask } = useTasks()
 
   const fetchTasks = async () => {
     try {
@@ -47,6 +57,10 @@ const CardTarefa = () => {
     fetchTasks();
   }, [tasks]);
 
+  const handleToggleTask = async (taskId: string, currentValue: boolean) => {
+     updateTask(taskId, !currentValue);
+  }
+
   const handleDeleteClick = (taskId: string) => {
     setSelectedTaskId(taskId);
     setOpenDialog(true);
@@ -56,8 +70,8 @@ const CardTarefa = () => {
   const handleConfirmDelete = async () => {
     if (!selectedTaskId) return;
     try {
-      const db = getFirestore(app);
-      await deleteDoc(doc(db, "tasks", selectedTaskId));
+
+      await deleteTask(selectedTaskId)
       setSnackbar({ open: true, message: 'Tarefa apagada com sucesso!', severity: 'success' });
       setOpenDialog(false);
       setSelectedTaskId(null);
@@ -78,6 +92,8 @@ const CardTarefa = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+
+
   if (loading) return <Typography sx={{ mt: 2 }}>Carregando tarefas...</Typography>;
   if (error) return <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>;
 
@@ -91,12 +107,27 @@ const CardTarefa = () => {
             </Typography>
           ) : (
             tasks.map(task => (
-              <Card key={task.id} elevation={2} sx={{ mb: 2 }}>
+              <Card key={task.id}
+                elevation={2}
+                sx={{
+                  mb: 2,
+                  opacity: task.completed ? 0.7 : 1,
+                  transition: "opacity 0.2s",
+                }}
+              >
                 <CardContent>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Checkbox checked={task.completed || false} color="primary" />
+                    <Checkbox checked={task.completed} color="primary" onChange={() => handleToggleTask(task.id, task.completed)} />
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="body1">{task.task}</Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          textDecoration: task.completed ? "line-through" : "none",
+                          
+                        }}
+                      >
+                        {task.task}
+                      </Typography>
                       {task.createdAt && (
                         <Typography variant="body2" color="text.secondary">
                           Adicionada em: {task.createdAt.toLocaleDateString("pt-BR")} às{" "}
@@ -104,7 +135,12 @@ const CardTarefa = () => {
                         </Typography>
                       )}
                     </Box>
-                    <Chip label={task.priority || 'Normal'} size='small' />
+                    <Chip
+                      color={TaskColor[task.priority.toLowerCase()] || 'default'}
+                      label={task.priority || 'Normal'}
+                      size='small'
+                      variant={task.completed ? 'outlined' : 'filled'}
+                    />
                     <IconButton color="error" size="small" onClick={() => handleDeleteClick(task.id)}>
                       <DeleteRounded />
                     </IconButton>

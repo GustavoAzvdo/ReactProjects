@@ -5,6 +5,7 @@ import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopu
 import { app } from '../../firebase/firebase';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ProgressBar from '../../components/ProgressBar/ProgressBar';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,26 +15,30 @@ const Login = () => {
     const auth = getAuth(app);
 
     const [, setUser] = useState<User | null>(null)
-    
-      useEffect(() => {
+
+    useEffect(() => {
         const auth = getAuth(app);
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
+            setUser(user);
         });
         return () => unsubscribe();
-      }, []);
-    
+    }, []);
+
 
     const handleLogin = async (e: React.FormEvent) => {
-         await signOut(auth)
+        localStorage.setItem("showLoginBar", "true");
+        await signOut(auth)
         e.preventDefault();
         setError('');
         setLoading(true);
         try {
-           await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, email, password);
             // Usuário autenticado, redireciona para home
-            navigate('/home');
-        } catch (err: any) {
+            setTimeout(() => {
+                navigate('/home');
+            }, 2000);
+        }
+        catch (err: any) {
             setError('Email ou senha inválidos');
         } finally {
             setLoading(false);
@@ -41,11 +46,11 @@ const Login = () => {
     };
 
     const handleGoogleLogin = async () => {
-         await signOut(auth)
+        await signOut(auth)
         setError('');
         setLoading(true);
         const provider = new GoogleAuthProvider();
-         provider.setCustomParameters({ prompt: 'select_account' });
+        provider.setCustomParameters({ prompt: 'select_account' });
         try {
             await signInWithPopup(auth, provider);
             navigate('/home');
@@ -56,96 +61,100 @@ const Login = () => {
         }
     };
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100vh ' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '400px', height: '540px' }}>
-                <Card elevation={5} sx={{ width: '100%', height: '100%', borderRadius: '15px' }}>
-                    <CardContent>
-                        <Box>
-                            <Stack direction='row'>
+        <>
 
-                                <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
-                                    <TipsAndUpdatesRounded color='primary' sx={{ fontSize: '20px', }} />
-                                </Box>
-                            </Stack>
-                        </Box>
-                        <Box sx={{ pt: 5 }}>
-                            <Stack direction='column' gap={2}>
-                                <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Login  </Typography>
-                                <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 4 }} onSubmit={handleLogin}>
-                                    <TextField
-                                        fullWidth
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        size='small'
-                                        type='email'
-                                        label='E-mail'
-                                        variant='outlined'
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton>
-                                                        < AlternateEmailRounded />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )
-                                        }}
-                                    />
-                                    <TextField
-                                        sx={{ mt: 3 }}
-                                        fullWidth
-                                        value={password}
-                                        onChange={e => setPassword(e.target.value)}
-                                        size='small'
-                                        type='password'
-                                        label='Senha'
-                                        variant='outlined'
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton>
-                                                        < KeyRounded />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )
-                                        }}
-                                    />
-                                   
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100vh ' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '400px', height: '540px' }}>
+                    <Card elevation={5} sx={{ width: '100%', height: '100%', borderRadius: '15px' }}>
+                        <CardContent>
+                            <Box>
+                                <Stack direction='row'>
+
+                                    <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
+                                        <TipsAndUpdatesRounded color='primary' sx={{ fontSize: '20px', }} />
+                                    </Box>
+                                </Stack>
+                            </Box>
+                            <Box sx={{ pt: 5 }}>
+                                <Stack direction='column' gap={2}>
+                                    <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Login  </Typography>
+                                    <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 4 }} onSubmit={handleLogin}>
+                                        <TextField
+                                            fullWidth
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
+                                            size='small'
+                                            type='email'
+                                            label='E-mail'
+                                            variant='outlined'
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton>
+                                                            < AlternateEmailRounded />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                        />
+                                        <TextField
+                                            sx={{ mt: 3 }}
+                                            fullWidth
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
+                                            size='small'
+                                            type='password'
+                                            label='Senha'
+                                            variant='outlined'
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton>
+                                                            < KeyRounded />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                        />
+                                        {loading && <ProgressBar />}
+
                                         <Button
                                             variant='contained'
                                             fullWidth
                                             sx={{ mt: 2 }}
-                                            endIcon= {loading ? '' : <SendRounded/>}
+                                            endIcon={loading ? '' : <SendRounded />}
                                             disabled={loading}
                                             onClick={handleLogin}
                                         >
                                             {loading ? <CircularProgress size={20} color="inherit" /> : 'Entrar'}
                                         </Button>
-                                   
-                                </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Typography variant='h6'>Ou</Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2 }}>
-                                    <Button variant='outlined' endIcon={<Google />} sx={{ py: 1 }} onClick={handleGoogleLogin}>
-                                        <Typography>Entrar com o Google</Typography>
-                                    </Button>
-                                </Box>
-                            </Stack>
 
-                        </Box>
-                        <Container>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Typography variant='h6'>Ou</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2 }}>
+                                        <Button variant='outlined' endIcon={<Google />} sx={{ py: 1 }} onClick={handleGoogleLogin}>
+                                            <Typography>Entrar com o Google</Typography>
+                                        </Button>
+                                    </Box>
+                                </Stack>
 
-                            <Divider sx={{ mt: 2 }} />
-                        </Container>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
-                            {/* <Typography >Não tem uma conta? <Link sx={{ textDecoration: 'none', cursor: 'pointer' }}>Crie uma!</Link> </Typography> */}
-                            <Typography >Não tem uma conta? <MuiLink component={RouterLink} to="/signin" sx={{ textDecoration: 'none', cursor: 'pointer' }}>Crie uma!</MuiLink> </Typography>
-                        </Box>
-                    </CardContent>
-                </Card>
+                            </Box>
+                            <Container>
+
+                                <Divider sx={{ mt: 2 }} />
+                            </Container>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+                                {/* <Typography >Não tem uma conta? <Link sx={{ textDecoration: 'none', cursor: 'pointer' }}>Crie uma!</Link> </Typography> */}
+                                <Typography >Não tem uma conta? <MuiLink component={RouterLink} to="/signin" sx={{ textDecoration: 'none', cursor: 'pointer' }}>Crie uma!</MuiLink> </Typography>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Box>
             </Box>
-        </Box>
+        </>
     )
 }
 

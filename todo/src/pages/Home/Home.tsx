@@ -15,10 +15,11 @@ import Filtro from '../../components/Filtro/Filtro';
 import TotalTarerfas from '../../components/TotalTarefas.tsx/TotalTarerfas';
 
 //firebase
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+
 import { getAuth } from "firebase/auth";
 import { app } from '../../firebase/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTasks } from '../../context/TasksContext';
 
 type Nivel = {
   id: number,
@@ -35,30 +36,39 @@ const nivel: Nivel[] = [
 const Home = () => {
   const [task, setTask] = useState('');
   const [priority, setPriority] = useState<Nivel | null>(null);
-
-  const db = getFirestore(app);
+  const [isValid, setIsValid] = useState<boolean>(false)
+  const { addTask } = useTasks()
+  //const db = getFirestore(app);
   const auth = getAuth(app);
 
   const handleAddTask = async () => {
     const user = auth.currentUser;
     if (!user || !task || !priority) return;
     try {
-      await addDoc(collection(db, "tasks"), {
-        uid: user.uid,
+      await addTask({
         task,
         priority: priority.msg,
         emoji: priority.emoji,
         completed: false,
-        createdAt: new Date()
       });
       setTask('');
+
       setPriority(null);
-      // Atualize a lista de tarefas se necessário
+      
     } catch (err) {
       // Trate o erro
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    if(task.trim() !== '' && priority?.msg != undefined) {
+      setIsValid(true)
+    }
+    else{
+      setIsValid(false)
+    }
+  },[task,priority])
   return (
     <>
       <Navtab />
@@ -108,11 +118,11 @@ const Home = () => {
                       renderOption={(props, option) => (
                         <li {...props} key={option.id}>
 
-                        {option.msg}
+                          {option.msg}
                         </li>
                       )}
                       sx={{ width: '100%' }}
-                    
+
                       disablePortal
                       disableCloseOnSelect
                       getOptionLabel={(option) => typeof option === 'string' ? option : `${option.msg}`}
@@ -128,6 +138,7 @@ const Home = () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ mb: 2 }}>
                     <Button
+                    disabled={!isValid}
                       variant="contained"
                       color="primary"
                       fullWidth
