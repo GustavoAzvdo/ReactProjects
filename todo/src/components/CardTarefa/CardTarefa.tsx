@@ -1,6 +1,6 @@
 import { Grid, Stack, Card, CardContent, Box, Checkbox, Typography, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert } from '@mui/material'
 import { DeleteRounded } from '@mui/icons-material'
-import { getFirestore, doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from '../../firebase/firebase';
