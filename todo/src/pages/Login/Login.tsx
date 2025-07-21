@@ -1,9 +1,9 @@
 import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
 import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, SendRounded } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth";
 import { app } from '../../firebase/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -13,7 +13,19 @@ const Login = () => {
     const navigate = useNavigate();
     const auth = getAuth(app);
 
+    const [, setUser] = useState<User | null>(null)
+    
+      useEffect(() => {
+        const auth = getAuth(app);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+        });
+        return () => unsubscribe();
+      }, []);
+    
+
     const handleLogin = async (e: React.FormEvent) => {
+         await signOut(auth)
         e.preventDefault();
         setError('');
         setLoading(true);
@@ -29,6 +41,7 @@ const Login = () => {
     };
 
     const handleGoogleLogin = async () => {
+         await signOut(auth)
         setError('');
         setLoading(true);
         const provider = new GoogleAuthProvider();
@@ -97,17 +110,18 @@ const Login = () => {
                                             )
                                         }}
                                     />
-                                    <RouterLink to="/home" style={{ textDecoration: 'none' }}>
+                                   
                                         <Button
                                             variant='contained'
                                             fullWidth
                                             sx={{ mt: 2 }}
-                                            endIcon={<SendRounded />}
+                                            endIcon= {loading ? '' : <SendRounded/>}
                                             disabled={loading}
+                                            onClick={handleLogin}
                                         >
                                             {loading ? <CircularProgress size={20} color="inherit" /> : 'Entrar'}
                                         </Button>
-                                    </RouterLink>
+                                   
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Typography variant='h6'>Ou</Typography>

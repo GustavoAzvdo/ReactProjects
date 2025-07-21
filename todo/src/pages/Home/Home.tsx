@@ -21,14 +21,15 @@ import { app } from '../../firebase/firebase';
 import { useState } from 'react';
 
 type Nivel = {
+  id: number,
   emoji: string,
   msg: string
 }
 
 const nivel: Nivel[] = [
-  { emoji: '😎', msg: 'Suave' },
-  { emoji: '😐', msg: 'Normal' },
-  { emoji: '🤯', msg: 'Urgente' }
+  { id: 1, emoji: '😎', msg: 'Suave' },
+  { id: 2, emoji: '😐', msg: 'Normal' },
+  { id: 3, emoji: '🤯', msg: 'Urgente' }
 ]
 
 const Home = () => {
@@ -95,7 +96,7 @@ const Home = () => {
                   <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ mb: 2 }}>
                     <Autocomplete
                       options={nivel}
-                      value={priority ?? undefined}
+                      value={priority}
                       onChange={(_, value) => {
                         if (typeof value === 'object' && value !== null && 'emoji' in value && 'msg' in value) {
                           setPriority(value as Nivel);
@@ -105,16 +106,16 @@ const Home = () => {
                       }}
                       renderInput={(params) => <TextField {...params} label="Prioridade" variant="outlined" />}
                       renderOption={(props, option) => (
-                        <li {...props}>
+                        <li {...props} key={option.id}>
 
-                          {option.emoji} - {option.msg}
+                        {option.msg}
                         </li>
                       )}
                       sx={{ width: '100%' }}
-                      disableClearable
+                    
                       disablePortal
                       disableCloseOnSelect
-                      getOptionLabel={(option) => typeof option === 'string' ? option : `${option.emoji} - ${option.msg}`}
+                      getOptionLabel={(option) => typeof option === 'string' ? option : `${option.msg}`}
                       isOptionEqualToValue={(option, value) => option === value}
 
                       freeSolo
@@ -122,14 +123,14 @@ const Home = () => {
                       selectOnFocus
                       clearOnBlur
                       handleHomeEndKeys
-                      
+
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ mb: 2 }}>
-                    <Button 
-                      variant="contained" 
-                      color="primary" 
-                      fullWidth 
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
                       endIcon={<AddTaskRoundedIcon />}
                       onClick={handleAddTask}
                     >

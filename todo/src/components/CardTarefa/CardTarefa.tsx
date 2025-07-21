@@ -50,6 +50,7 @@ const CardTarefa = () => {
   const handleDeleteClick = (taskId: string) => {
     setSelectedTaskId(taskId);
     setOpenDialog(true);
+    fetchTasks()
   };
 
   const handleConfirmDelete = async () => {

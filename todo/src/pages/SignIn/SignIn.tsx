@@ -1,8 +1,8 @@
 import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, LinearProgress, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
 import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, FaceRounded, AddCircleOutlineRounded } from '@mui/icons-material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
-import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth"
 import { app } from '../../firebase/firebase'
 const getPasswordStrength = (password: string): number => {
     let score = 0
@@ -40,10 +40,20 @@ const SignIn = () => {
     const navigate = useNavigate()
     const auth = getAuth(app);
 
-
+    const [, setUser] = useState<User | null>(null)
+    
+      useEffect(() => {
+        const auth = getAuth(app);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+        });
+        return () => unsubscribe();
+      }, []);
+    
     const strength = getPasswordStrength(password)
 
     const handleSignUp = async (e: React.FormEvent) => {
+         await signOut(auth)
         e.preventDefault()
         setError('')
         setLoading(true)
@@ -53,6 +63,7 @@ const SignIn = () => {
             return
         }
         try {
+           
             const userCredential = await createUserWithEmailAndPassword(auth, email, password)
             await updateProfile(userCredential.user, { displayName: name })
             navigate('/home')
@@ -64,6 +75,7 @@ const SignIn = () => {
     }
 
     const handleGoogleSignIn = async () => {
+         await signOut(auth)
         setError('');
         setLoading(true);
         const provider = new GoogleAuthProvider();
@@ -97,7 +109,7 @@ const SignIn = () => {
                         <Box sx={{ pt: 5 }}>
                             <Stack direction='column' gap={2}>
                                 <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Sign In  </Typography>
-                                <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} onSubmit={handleSignUp}>
+                                <Box  sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} >
                                     <TextField
                                         fullWidth
                                         size='small'
@@ -195,6 +207,7 @@ const SignIn = () => {
                                         fullWidth
                                         type="submit"
                                         disabled={!isFormValid || loading}
+                                        onClick={handleSignUp}
                                         endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AddCircleOutlineRounded />}
                                     >
                                         Criar Conta
