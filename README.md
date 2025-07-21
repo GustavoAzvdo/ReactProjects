@@ -16,7 +16,7 @@
 - [TypeScript](https://www.typescriptlang.org/)
 - [Material UI](https://mui.com/)
 - [Firebase Authentication & Firestore](https://firebase.google.com/)
-- [CSS Modules](https://github.com/css-modules/css-modules) (ou outra abordagem que você estiver usando)
+- [CSS]
 
 ## 🚀 Como rodar o projeto
 
