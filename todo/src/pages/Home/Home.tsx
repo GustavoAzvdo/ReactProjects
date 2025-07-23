@@ -15,10 +15,15 @@ import Filtro from '../../components/Filtro/Filtro';
 import TotalTarerfas from '../../components/TotalTarefas.tsx/TotalTarerfas';
 
 //firebase
-
 import { getAuth } from "firebase/auth";
 import { app } from '../../firebase/firebase';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+
+//itens do campo de data
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useTasks } from '../../context/TasksContext';
 
 type Nivel = {
@@ -37,11 +42,12 @@ const Home = () => {
   const [task, setTask] = useState('');
   const [priority, setPriority] = useState<Nivel | null>(null);
   const [isValid, setIsValid] = useState<boolean>(false)
-  const { addTask } = useTasks()
-  //const db = getFirestore(app);
+  const {addTask} = useTasks()
+
+  
   const auth = getAuth(app);
 
-  const handleAddTask = async () => {
+const handleAddTask = async () => {
     const user = auth.currentUser;
     if (!user || !task || !priority) return;
     try {
@@ -60,21 +66,20 @@ const Home = () => {
       console.error(err);
     }
   };
-
   useEffect(() => {
-    if(task.trim() !== '' && priority?.msg != undefined) {
+    if (task.trim() !== '' && priority?.msg != undefined) {
       setIsValid(true)
     }
-    else{
+    else {
       setIsValid(false)
     }
-  },[task,priority])
+  }, [task, priority])
   return (
     <>
       <Navtab />
       <Container>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 12, md: 12 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12 }} sx={{ my: 1 }}>
             <Box className='title' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 3 }}>
               <Stack direction='row'>
                 <Typography variant='h3' sx={{ fontWeight: 400 }}>Adicione sua</Typography>
@@ -92,9 +97,9 @@ const Home = () => {
                 <Typography variant="h6" gap={2} gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#c5c5c5' }}>
                   <AssignmentRoundedIcon />  Adicionar Nova Tarefa
                 </Typography>
-                <Stack direction='row' spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
+               <Stack direction='row' spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
 
-                  <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{ mb: 2 }}>
+                  <Grid size={{ xs: 12, sm: 12, md: 5 }} sx={{ mb: 2 , pt: 1}}>
                     <TextField
                       fullWidth
                       label="Digite sua Task"
@@ -103,7 +108,8 @@ const Home = () => {
                       onChange={e => setTask(e.target.value)}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ mb: 2 }}>
+
+                  <Grid size={{ xs: 12, sm: 12, md: 3 }} sx={{ mb: 2, pt: 1 }}>
                     <Autocomplete
                       options={nivel}
                       value={priority}
@@ -136,19 +142,29 @@ const Home = () => {
 
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ mb: 2 }}>
-                    <Button
-                    disabled={!isValid}
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      endIcon={<AddTaskRoundedIcon />}
-                      onClick={handleAddTask}
-                    >
-                      Adicionar Task
-                    </Button>
+                  <Grid size={{ xs: 12, sm: 12, md: 4 }}>
+                    <Box sx={{ width: '100%' }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                          <DatePicker label="Escolha uma data" />
+                        </DemoContainer>
+                      </LocalizationProvider>
+
+                    </Box>
                   </Grid>
                 </Stack>
+                <Grid size={{ xs: 12, sm: 12, md: 12 }} sx={{ mb: 2 }}>
+                  <Button
+                  disabled={!isValid}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    endIcon={<AddTaskRoundedIcon />}
+                    onClick={handleAddTask}
+                  >
+                    Adicionar Task
+                  </Button>
+                </Grid>
 
               </CardContent>
             </Card>
