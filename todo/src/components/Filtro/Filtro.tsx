@@ -11,18 +11,23 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+//data pt-br
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/pt-br'
+dayjs.locale('pt-br')
+
 import { useState } from 'react'
 
 type Nivel = {
     id: number,
-    emoji: string,
+
     msg: string
 }
 
 const nivel: Nivel[] = [
-    { id: 1, emoji: '😎', msg: 'Suave' },
-    { id: 2, emoji: '😐', msg: 'Normal' },
-    { id: 3, emoji: '🤯', msg: 'Urgente' }
+    { id: 1, msg: 'Suave' },
+    { id: 2, msg: 'Normal' },
+    { id: 3, msg: 'Urgente' }
 ]
 
 const Filtro = () => {
@@ -82,7 +87,7 @@ const Filtro = () => {
 
                         </Grid>
                         <Grid size={{ xs: 12, sm: 12, md: 3 }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='pt-br'>
                                 <DemoContainer components={['DatePicker']}>
                                     <DatePicker label="Escolha uma data" />
                                 </DemoContainer>

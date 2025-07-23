@@ -7,9 +7,9 @@ import { app } from '../../firebase/firebase';
 import { useTasks } from '../../context/TasksContext';
 
 const TaskColor: Record<string, "error" | "primary" | "success"> = {
-  urgente: "error",
-  normal: "primary",
-  suave: "success",
+  alta: "error",
+  media: "primary",
+  baixa: "success",
 };
 
 

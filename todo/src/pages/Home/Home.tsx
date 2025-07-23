@@ -26,16 +26,20 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useTasks } from '../../context/TasksContext';
 
+//data pt-br
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/pt-br'
+dayjs.locale('pt-br')
+
 type Nivel = {
   id: number,
-  emoji: string,
   msg: string
 }
 
 const nivel: Nivel[] = [
-  { id: 1, emoji: '😎', msg: 'Suave' },
-  { id: 2, emoji: '😐', msg: 'Normal' },
-  { id: 3, emoji: '🤯', msg: 'Urgente' }
+  { id: 1, msg: 'Baixa' },
+  { id: 2, msg: 'Média' },
+  { id: 3, msg: 'Alta' }
 ]
 
 const Home = () => {
@@ -54,7 +58,6 @@ const handleAddTask = async () => {
       await addTask({
         task,
         priority: priority.msg,
-        emoji: priority.emoji,
         completed: false,
       });
       setTask('');
@@ -114,7 +117,7 @@ const handleAddTask = async () => {
                       options={nivel}
                       value={priority}
                       onChange={(_, value) => {
-                        if (typeof value === 'object' && value !== null && 'emoji' in value && 'msg' in value) {
+                        if (typeof value === 'object' && value !== null && 'msg' in value) {
                           setPriority(value as Nivel);
                         } else {
                           setPriority(null);
@@ -144,9 +147,9 @@ const handleAddTask = async () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 12, md: 4 }}>
                     <Box sx={{ width: '100%' }}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                         <DemoContainer components={['DatePicker']}>
-                          <DatePicker label="Escolha uma data" />
+                          <DatePicker label="Escolha uma data" format='DD/MM/YYYY'/>
                         </DemoContainer>
                       </LocalizationProvider>
 

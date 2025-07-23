@@ -7,7 +7,6 @@ type Task = {
   id?: string;
   task: string;
   priority: string;
-  emoji?: string;
   completed: boolean;
   createdAt: any;
   uid: string;
