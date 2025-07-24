@@ -96,15 +96,15 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem sx={{ display: {sm: 'none', md:'none', xs: 'flex'}}} >
+              <MenuItem sx={{ display: { sm: 'none', md: 'none', xs: 'flex' } }} >
                 <Typography color='primary' fontSize={20}>Olá, {user?.displayName}!</Typography>
               </MenuItem>
               {settings.map((setting) => (
-                <>
-                  <MenuItem key={setting} onClick={handleCloseUserMenu} sx={{textAlign: 'end'}}>
-                    <Typography><RouterLink to={'/login'} style={{ textDecoration: 'none', color: 'black' }}>{setting}</RouterLink></Typography>
-                  </MenuItem>
-                </>
+
+                <MenuItem key={setting} onClick={handleCloseUserMenu} sx={{ textAlign: 'end' }}>
+                  <Typography><RouterLink to={'/login'} style={{ textDecoration: 'none', color: 'black' }}>{setting}</RouterLink></Typography>
+                </MenuItem>
+
               ))}
             </Menu>
           </Box>

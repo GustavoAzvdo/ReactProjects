@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth"
 import { app } from '../../firebase/firebase'
+import Aviso from '../../components/Aviso/Aviso'
 const getPasswordStrength = (password: string): number => {
     let score = 0
     if (password.length >= 6) score++
@@ -31,6 +32,8 @@ const strengthColors: Array<'error' | 'warning' | 'info' | 'primary' | 'success'
 ]
 
 const SignIn = () => {
+    const [snackbar, setSnackbar] = useState<{ open: boolean, mensage: string, severity: "success" | "error" | "warning" | undefined, onClose: boolean }>({ open: false, mensage: '', severity: 'success', onClose: false })
+
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -41,19 +44,19 @@ const SignIn = () => {
     const auth = getAuth(app);
 
     const [, setUser] = useState<User | null>(null)
-    
-      useEffect(() => {
+
+    useEffect(() => {
         const auth = getAuth(app);
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
+            setUser(user);
         });
         return () => unsubscribe();
-      }, []);
-    
+    }, []);
+
     const strength = getPasswordStrength(password)
 
     const handleSignUp = async (e: React.FormEvent) => {
-         await signOut(auth)
+        await signOut(auth)
         e.preventDefault()
         setError('')
         setLoading(true)
@@ -63,11 +66,13 @@ const SignIn = () => {
             return
         }
         try {
-           
+            setSnackbar({ open: true, mensage: 'Conta criada com sucesso!', severity: "success", onClose: true });
             const userCredential = await createUserWithEmailAndPassword(auth, email, password)
             await updateProfile(userCredential.user, { displayName: name })
             navigate('/home')
         } catch (err: any) {
+            setSnackbar({ open: true, mensage: 'Erro ao criar a conta!', severity: "error", onClose: true });
+
             setError(err.message)
         } finally {
             setLoading(false)
@@ -75,11 +80,11 @@ const SignIn = () => {
     }
 
     const handleGoogleSignIn = async () => {
-         await signOut(auth)
+        await signOut(auth)
         setError('');
         setLoading(true);
         const provider = new GoogleAuthProvider();
-         provider.setCustomParameters({ prompt: 'select_account' });
+        provider.setCustomParameters({ prompt: 'select_account' });
         try {
             await signInWithPopup(auth, provider);
             // Se o usuário já existe, faz login normalmente
@@ -109,7 +114,7 @@ const SignIn = () => {
                         <Box sx={{ pt: 5 }}>
                             <Stack direction='column' gap={2}>
                                 <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Sign In  </Typography>
-                                <Box  sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} >
+                                <Box sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }} >
                                     <TextField
                                         fullWidth
                                         size='small'
@@ -232,6 +237,12 @@ const SignIn = () => {
                     </CardContent>
                 </Card>
             </Box>
+            <Aviso 
+                severity={snackbar.severity}
+                mensage={snackbar.mensage}
+                open={snackbar.open}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+            />
         </Box>
     )
 }

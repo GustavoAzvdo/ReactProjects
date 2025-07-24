@@ -6,7 +6,10 @@ import { app } from '../../firebase/firebase';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
+import Aviso from '../../components/Aviso/Aviso'
+
 const Login = () => {
+    const [snackbar, setSnackbar] = useState<{ open: boolean, mensage: string, severity: "success" | "error" | "warning" | undefined, onClose: boolean }>({ open: false, mensage: '', severity: 'success', onClose: false })
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [, setError] = useState('');
@@ -33,12 +36,16 @@ const Login = () => {
         setLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+
             // Usuário autenticado, redireciona para home
             setTimeout(() => {
+                setSnackbar({ open: true, mensage: 'Login efetuado!', severity: "success", onClose: true });
                 navigate('/home');
             }, 2000);
         }
         catch (err: any) {
+            setSnackbar({ open: true, mensage: 'Email ou senha inválidos!', severity: "error", onClose: true });
+
             setError('Email ou senha inválidos');
         } finally {
             setLoading(false);
@@ -154,6 +161,12 @@ const Login = () => {
                     </Card>
                 </Box>
             </Box>
+            <Aviso
+                severity={snackbar.severity}
+                open={snackbar.open}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                mensage={snackbar.mensage}
+            />
         </>
     )
 }
