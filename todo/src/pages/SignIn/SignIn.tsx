@@ -116,7 +116,7 @@ const SignIn = () => {
                             <Stack direction='column' gap={2}>
                                 <Box sx={{pt: 0}}>
                                     <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Sign In  </Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, }}>Crie sua conta para usar o Taskz! </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, pl: 1 }}>Crie sua conta para usar o Taskz! </Typography>
 
                                 </Box>
                                 <Box sx={{ alignItems: 'center', justifyContent: 'center' , mt: 1}} >
