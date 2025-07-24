@@ -1,10 +1,12 @@
-import { Grid, Stack, Card, CardContent, Box, Checkbox, Typography, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert } from '@mui/material'
+import { Grid, Stack, Card, CardContent, Box, Checkbox, Typography, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
 import { DeleteRounded } from '@mui/icons-material'
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from '../../firebase/firebase';
 import { useTasks } from '../../context/TasksContext';
+import Aviso from '../Aviso/Aviso';
+import dayjs from 'dayjs'
 
 const TaskColor: Record<string, "error" | "primary" | "success"> = {
   alta: "error",
@@ -13,15 +15,31 @@ const TaskColor: Record<string, "error" | "primary" | "success"> = {
 };
 
 
-const CardTarefa = () => {
-  const [tasks, setTasks] = useState<any[]>([]);
+interface CardTarefaProps {
+  filterPriority?: { msg: string };
+  filterDate?: dayjs.Dayjs;
+  showAll: boolean
+}
+
+const CardTarefa = ({ filterPriority, filterDate, showAll }: CardTarefaProps) => {
+  const [snackbar, setSnackbar] = useState<{open: boolean, mensage: string, severity: "success" | "error" | "warning" | undefined, onClose: boolean}>({open: false, mensage: '', severity: 'success', onClose: false})
+  const [task, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [openDialog, setOpenDialog] = useState(false);
- 
+
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
-  const { deleteTask, updateTask } = useTasks()
+  const { tasks,deleteTask, updateTask } = useTasks()
+
+
+
+  const filteredTasks = showAll
+    ? tasks
+    : tasks.filter(task => {
+        const priorityMatch = filterPriority ? task.priority === filterPriority.msg : true;
+        const dateMatch = filterDate ? task.dateTask === filterDate.format('DD-MM-YYYY') : true;
+        return priorityMatch && dateMatch;
+      });
 
   const fetchTasks = async () => {
     try {
@@ -55,10 +73,10 @@ const CardTarefa = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [tasks]);
+  }, [task]);
 
   const handleToggleTask = async (taskId: string, currentValue: boolean) => {
-     updateTask(taskId, !currentValue);
+    updateTask(taskId, !currentValue);
   }
 
   const handleDeleteClick = (taskId: string) => {
@@ -72,12 +90,12 @@ const CardTarefa = () => {
     try {
 
       await deleteTask(selectedTaskId)
-      setSnackbar({ open: true, message: 'Tarefa apagada com sucesso!', severity: 'success' });
+      setSnackbar({ open: true, mensage: 'Tarefa apagada com sucesso!', severity: "success" , onClose: true});
       setOpenDialog(false);
       setSelectedTaskId(null);
       fetchTasks();
     } catch (err) {
-      setSnackbar({ open: true, message: 'Erro ao apagar a tarefa!', severity: 'error' });
+      setSnackbar({ open: true, mensage: 'Erro ao apagar a tarefa!', severity: "error", onClose: false });
       setOpenDialog(false);
       setSelectedTaskId(null);
     }
@@ -86,10 +104,6 @@ const CardTarefa = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedTaskId(null);
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
   };
 
 
@@ -101,12 +115,12 @@ const CardTarefa = () => {
     <>
       <Grid size={{ xs: 12, sm: 12, md: 12 }}>
         <Stack direction='column'>
-          {tasks.length === 0 ? (
-            <Typography sx={{ mt: 2, textAlign: 'center', color: '#aaa' }}>
+          {filteredTasks.length === 0 ? (
+            <Typography sx={{ mb: 1, textAlign: 'center', color: '#aaa' }}>
               Nenhuma tarefa adicionada
             </Typography>
           ) : (
-            tasks.map(task => (
+            filteredTasks.map(task => (
               <Card key={task.id}
                 elevation={2}
                 sx={{
@@ -123,16 +137,24 @@ const CardTarefa = () => {
                         variant="body1"
                         sx={{
                           textDecoration: task.completed ? "line-through" : "none",
-                          
+
                         }}
                       >
                         {task.task}
                       </Typography>
                       {task.createdAt && (
-                        <Typography variant="body2" color="text.secondary">
-                          Adicionada em: {task.createdAt.toLocaleDateString("pt-BR")} às{" "}
-                          {task.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                        </Typography>
+                        <Box>
+
+                          <Typography variant="body2" color="text.secondary">
+                            Adicionada em: {task.createdAt.toLocaleDateString("pt-BR")} às{" "}
+                            {task.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Para: {dayjs(task.dateTask, 'DD-MM-YYYY').format('DD/MM/YYYY')}
+
+                          </Typography>
+                        </Box>
+
                       )}
                     </Box>
                     <Chip
@@ -161,11 +183,15 @@ const CardTarefa = () => {
           <Button onClick={handleConfirmDelete} color="error">Apagar</Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+ 
+      {/* Snackbar */}
+      <Aviso
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        severity={snackbar.severity}
+        open={snackbar.open}
+        mensage={snackbar.mensage}
+      />
+      
     </>
   )
 }

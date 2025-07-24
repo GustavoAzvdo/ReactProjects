@@ -4,10 +4,11 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebase/firebase";
 
 type Task = {
-  id?: string;
+  id: string;
   task: string;
   priority: string;
   completed: boolean;
+  dateTask: any
   createdAt: any;
   uid: string;
 };
@@ -53,6 +54,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         id: docSnap.id,
         ...data,
         createdAt: data.createdAt && typeof data.createdAt.toDate === "function" ? data.createdAt.toDate() : null,
+        dateTask: data.dateTask || null,
       } as Task;
     });
     setTasks(userTasks);

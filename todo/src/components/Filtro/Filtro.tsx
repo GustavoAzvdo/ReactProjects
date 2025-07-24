@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br'
 dayjs.locale('pt-br')
 
-import { useState } from 'react'
+
 
 type Nivel = {
     id: number,
@@ -25,13 +25,22 @@ type Nivel = {
 }
 
 const nivel: Nivel[] = [
-    { id: 1, msg: 'Suave' },
-    { id: 2, msg: 'Normal' },
-    { id: 3, msg: 'Urgente' }
+    { id: 1, msg: 'Baixa' },
+    { id: 2, msg: 'Média' },
+    { id: 3, msg: 'Alta' }
 ]
 
-const Filtro = () => {
-    const [priority, setPriority] = useState<Nivel | null>(null);
+type FiltroProps = {
+    priority: Nivel | null;
+    setPriority: (value: Nivel | null) => void;
+    date: dayjs.Dayjs | null;
+    setDate: (value: dayjs.Dayjs | null) => void;
+    showAll: boolean;
+    setShowAll: (value: boolean) => void
+};
+
+const Filtro = ({ priority, setPriority, date, setDate, showAll, setShowAll }: FiltroProps) => {
+
 
     
     
@@ -46,7 +55,7 @@ const Filtro = () => {
                         </Typography>
 
                         <Box>
-                            <Button startIcon={<CloseRoundedIcon />}>
+                            <Button startIcon={<CloseRoundedIcon />} onClick={() => {setPriority(null); setDate(null); }}>
                                 Limpar
                             </Button>
                         </Box>
@@ -57,10 +66,8 @@ const Filtro = () => {
                                 options={nivel}
                                 value={priority}
                                 onChange={(_, value) => {
-                                    if (typeof value === 'object' && value !== null && 'emoji' in value && 'msg' in value) {
-                                        setPriority(value as Nivel);
-                                    } else {
-                                        setPriority(null);
+                                    if (typeof value === 'object' || value === null) {
+                                        setPriority(value as Nivel | null);
                                     }
                                 }}
                                 renderInput={(params) => <TextField {...params} label="Prioridade" variant="outlined" />}
@@ -89,14 +96,24 @@ const Filtro = () => {
                         <Grid size={{ xs: 12, sm: 12, md: 3 }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='pt-br'>
                                 <DemoContainer components={['DatePicker']}>
-                                    <DatePicker label="Escolha uma data" />
+                                    <DatePicker 
+                                        label="Escolha uma data" 
+                                        value={date}
+                                        onChange={setDate}
+                                    />
                                 </DemoContainer>
                             </LocalizationProvider>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 12, md: 4 }} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Box  >
                                 <FormGroup>
-                                    <FormControlLabel control={<Checkbox defaultChecked />} label='Mostrar todas as tarefas' />
+                                    <FormControlLabel control={
+                                        <Checkbox 
+                                            checked={showAll}
+                                            onChange={e => setShowAll(e.target.checked)}
+                                        />
+                                    } 
+                                    label='Mostrar todas as tarefas' />
                                 </FormGroup>
                             </Box>
                         </Grid>

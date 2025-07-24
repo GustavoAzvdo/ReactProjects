@@ -29,6 +29,7 @@ import { useTasks } from '../../context/TasksContext';
 //data pt-br
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br'
+import Aviso from '../../components/Aviso/Aviso';
 dayjs.locale('pt-br')
 
 type Nivel = {
@@ -43,46 +44,53 @@ const nivel: Nivel[] = [
 ]
 
 const Home = () => {
+  const [snackbar, setSnackbar] = useState<{ open: boolean, mensage: string, severity: "success" | "error" | "warning" | undefined, onClose: boolean }>({ open: false, mensage: '', severity: 'success', onClose: false })
+  const [showAll, setShowAll] = useState(true)
   const [task, setTask] = useState('');
   const [priority, setPriority] = useState<Nivel | null>(null);
+  const [dateTask, setDateTask] = useState<dayjs.Dayjs | null>(null)
   const [isValid, setIsValid] = useState<boolean>(false)
-  const {addTask} = useTasks()
+  const [filterPriority, setFilterPriority] = useState<Nivel | null>(null);
+  const [filterDate, setFilterDate] = useState<dayjs.Dayjs | null>(null);
+  const { addTask } = useTasks()
 
-  
+
   const auth = getAuth(app);
 
-const handleAddTask = async () => {
+  const handleAddTask = async () => {
     const user = auth.currentUser;
     if (!user || !task || !priority) return;
     try {
       await addTask({
         task,
         priority: priority.msg,
+        dateTask: dateTask ? dateTask.format('DD-MM-YYYY') : null,
         completed: false,
       });
-      setTask('');
+      setSnackbar({ open: true, mensage: 'Tarefa adicionada com sucesso!', severity: "success", onClose: true });
 
+      setTask('');
       setPriority(null);
-      
+      setDateTask(null)
     } catch (err) {
-      // Trate o erro
+      setSnackbar({ open: true, mensage: 'Erro ao adicionar a tarefa!', severity: "error", onClose: true });
       console.error(err);
     }
   };
   useEffect(() => {
-    if (task.trim() !== '' && priority?.msg != undefined) {
+    if (task.trim() !== '' && priority?.msg != undefined && dateTask !== null) {
       setIsValid(true)
     }
     else {
       setIsValid(false)
     }
-  }, [task, priority])
+  }, [task, priority, dateTask])
   return (
     <>
       <Navtab />
       <Container>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 12, md: 12 }} sx={{ my: 1 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12 }} >
             <Box className='title' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 3 }}>
               <Stack direction='row'>
                 <Typography variant='h3' sx={{ fontWeight: 400 }}>Adicione sua</Typography>
@@ -100,9 +108,9 @@ const handleAddTask = async () => {
                 <Typography variant="h6" gap={2} gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#c5c5c5' }}>
                   <AssignmentRoundedIcon />  Adicionar Nova Tarefa
                 </Typography>
-               <Stack direction='row' spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
+                <Stack direction='row' spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
 
-                  <Grid size={{ xs: 12, sm: 12, md: 5 }} sx={{ mb: 2 , pt: 1}}>
+                  <Grid size={{ xs: 12, sm: 12, md: 5 }} sx={{ mb: 2, pt: 1 }}>
                     <TextField
                       fullWidth
                       label="Digite sua Task"
@@ -149,7 +157,12 @@ const handleAddTask = async () => {
                     <Box sx={{ width: '100%' }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                         <DemoContainer components={['DatePicker']}>
-                          <DatePicker label="Escolha uma data" format='DD/MM/YYYY'/>
+                          <DatePicker
+                            label="Escolha uma data"
+                            format='DD/MM/YYYY'
+                            value={dateTask}
+                            onChange={nv => setDateTask(nv)}
+                          />
                         </DemoContainer>
                       </LocalizationProvider>
 
@@ -158,7 +171,7 @@ const handleAddTask = async () => {
                 </Stack>
                 <Grid size={{ xs: 12, sm: 12, md: 12 }} sx={{ mb: 2 }}>
                   <Button
-                  disabled={!isValid}
+                    disabled={!isValid}
                     variant="contained"
                     color="primary"
                     fullWidth
@@ -177,14 +190,36 @@ const handleAddTask = async () => {
           <TotalTarerfas />
           {/*  */}
 
-          <Filtro />
+          <Filtro
+            priority={filterPriority}
+            setPriority={setFilterPriority}
+            date={filterDate}
+            setDate={setFilterDate}
+            showAll={showAll}
+            setShowAll={setShowAll}
+          />
           <Grid size={{ xs: 12, sm: 12, md: 12 }}>
             <Divider />
           </Grid>
-          <TitleTarefas />
-          <CardTarefa />
+          <TitleTarefas
+            filterPriority={filterPriority}
+            filterDate={filterDate}
+            showAll={showAll}
+          />
+          <CardTarefa
+            filterPriority={filterPriority ?? undefined}
+            filterDate={filterDate ?? undefined}
+            showAll={showAll}
+          />
         </Grid>
       </Container>
+      {/* Snackbar */}
+      <Aviso
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        severity={snackbar.severity}
+        open={snackbar.open}
+        mensage={snackbar.mensage}
+      />
     </>
   )
 }
