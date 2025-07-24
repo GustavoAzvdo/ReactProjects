@@ -12,7 +12,7 @@ import Navtab from '../../components/Navtab/Navtab'
 import CardTarefa from '../../components/CardTarefa/CardTarefa';
 import TitleTarefas from '../../components/TitleTarefas/TitleTarefas';
 import Filtro from '../../components/Filtro/Filtro';
-import TotalTarerfas from '../../components/TotalTarefas.tsx/TotalTarerfas';
+import TotalTarerfas from '../../components/TotalTarefas/TotalTarerfas';
 
 //firebase
 import { getAuth } from "firebase/auth";
@@ -92,11 +92,11 @@ const Home = () => {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 12, md: 12 }} >
             <Box className='title' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 3 }}>
-              <Stack direction='row'>
+              <Stack direction={{ xs: 'column',sm: 'column', md: 'row' }} sx={{alignItems: 'center'}}>
                 <Typography variant='h3' sx={{ fontWeight: 400 }}>Adicione sua</Typography>
 
                 <Typography variant='h3' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: {xs: 'center'}, pl: 2 }}>
                   <TipsAndUpdatesRoundedIcon color='primary' sx={{ fontSize: '42px', }} />
                 </Box>
               </Stack>
@@ -108,7 +108,7 @@ const Home = () => {
                 <Typography variant="h6" gap={2} gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#c5c5c5' }}>
                   <AssignmentRoundedIcon />  Adicionar Nova Tarefa
                 </Typography>
-                <Stack direction='row' spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
+                <Stack  direction={{ xs: 'column',sm: 'column', md: 'row' }} spacing={2} sx={{ mb: 2, alignItems: 'center', my: 2 }}>
 
                   <Grid size={{ xs: 12, sm: 12, md: 5 }} sx={{ mb: 2, pt: 1 }}>
                     <TextField

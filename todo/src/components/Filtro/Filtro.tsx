@@ -60,7 +60,7 @@ const Filtro = ({ priority, setPriority, date, setDate, showAll, setShowAll }: F
                             </Button>
                         </Box>
                     </Box>
-                    <Stack direction='row' gap={2}>
+                    <Stack direction={{ xs: 'column',sm: 'column', md: 'row' }}  gap={2}>
                         <Grid size={{ xs: 12, sm: 12, md: 2 }}>
                             <Autocomplete
                                 options={nivel}
