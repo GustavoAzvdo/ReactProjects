@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
 import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, SendRounded } from '@mui/icons-material'
-import { Link as RouterLink } from 'react-router-dom'
+import {  Link as RouterLink } from 'react-router-dom'
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth";
 import { app } from '../../firebase/firebase';
 import { useEffect, useState } from 'react';
@@ -77,16 +77,16 @@ const Login = () => {
                             <Box>
                                 <Stack direction='row'>
 
-                                    <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
+                                    <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Taskz  </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
                                         <TipsAndUpdatesRounded color='primary' sx={{ fontSize: '20px', }} />
                                     </Box>
                                 </Stack>
                             </Box>
                             <Box sx={{ pt: 5 }}>
-                                <Stack direction='column' gap={2}>
+                                <Stack direction='column' gap={1}>
                                     <Typography variant='h4' sx={{ fontWeight: 600, pl: 1, }}> Login  </Typography>
-                                    <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 4 }} onSubmit={handleLogin}>
+                                    <Box component='form' sx={{ alignItems: 'center', justifyContent: 'center', mt: 3 }} onSubmit={handleLogin}>
                                         <TextField
                                             fullWidth
                                             value={email}
@@ -124,6 +124,12 @@ const Login = () => {
                                                 )
                                             }}
                                         />
+                                        <Box sx={{display: 'flex', justifyContent: 'end', mt: 1}}>
+                                            <MuiLink component={RouterLink} to={'/recuperar-senha'} sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+                                                <Typography color='primary'>Esqueci minha senha</Typography>
+                                            </MuiLink>
+
+                                        </Box>
                                         {loading && <ProgressBar />}
 
                                         <Button
