@@ -62,7 +62,7 @@ const SignIn = () => {
                     <CardContent>
                         <Box>
                             <Stack direction='row'>
-                                <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Task  </Typography>
+                                <Typography variant='h5' color='primary' sx={{ fontWeight: 600, pl: 1, }}> Taskz  </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
                                     <TipsAndUpdatesRounded color='primary' sx={{ fontSize: '20px', }} />
                                 </Box>
