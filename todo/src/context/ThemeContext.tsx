@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -8,7 +8,17 @@ export const ColorModeContext = createContext({
 });
 
 export function CustomThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('tema');
+    return (saved === 'dark' || saved === 'light' ? saved : 'light');
+  });
+
+
+  useEffect (() => {
+    localStorage.setItem('tema',mode)
+  },[mode])
+ 
+  
 
   const colorMode = useMemo(
     () => ({
