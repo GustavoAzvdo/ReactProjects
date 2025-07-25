@@ -8,7 +8,7 @@ const TotalTarerfas = () => {
   const total = tasks.length;
   const pendentes = tasks.filter(t => !t.completed).length;
   const concluidas = tasks.filter(t => t.completed).length;
-  const urgentes = tasks.filter(t => t.priority === 'Urgente').length;
+  const urgentes = tasks.filter(t => t.priority === 'Alta').length;
 
 
     return (
