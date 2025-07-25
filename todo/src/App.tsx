@@ -7,10 +7,13 @@ import AppRoutes from './routes/AppRoutes';
 import { TasksProvider } from './context/TasksContext';
 
 const App = () => {
+ 
   return (
-    <TasksProvider>
-      <AppRoutes/>
-    </TasksProvider>
+  
+      <TasksProvider>
+        <AppRoutes />
+      </TasksProvider>
+   
   )
 }
 
