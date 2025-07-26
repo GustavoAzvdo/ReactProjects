@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
-import { TipsAndUpdatesRounded, AlternateEmailRounded, KeyRounded, Google, SendRounded } from '@mui/icons-material'
+import { TipsAndUpdatesRounded, AlternateEmailRounded, Google, SendRounded } from '@mui/icons-material'
 import {  Link as RouterLink } from 'react-router-dom'
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth";
 import { app } from '../../firebase/firebase';
@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Aviso from '../../components/Aviso/Aviso'
+
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
+import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 
 const Login = () => {
     const [snackbar, setSnackbar] = useState<{ open: boolean, mensage: string, severity: "success" | "error" | "warning" | undefined, onClose: boolean }>({ open: false, mensage: '', severity: 'success', onClose: false })
@@ -16,8 +19,9 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const auth = getAuth(app);
-
+    const [ver, setVer] = useState<boolean>(false)
     const [, setUser] = useState<User | null>(null)
+
 
     useEffect(() => {
         const auth = getAuth(app);
@@ -111,14 +115,18 @@ const Login = () => {
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             size='small'
-                                            type='password'
+                                            type={ver ? 'text': 'password'}
                                             label='Senha'
                                             variant='outlined'
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <IconButton>
-                                                            < KeyRounded />
+                                                        <IconButton onClick={(_e) => setVer(!ver)}>
+                                                            {ver ? (
+                                                                <VisibilityOffRoundedIcon/>
+                                                            ) : (
+                                                                <VisibilityRoundedIcon/>
+                                                            )}
                                                         </IconButton>
                                                     </InputAdornment>
                                                 )
