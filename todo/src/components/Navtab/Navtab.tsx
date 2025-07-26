@@ -18,10 +18,10 @@ import TipsAndUpdatesRoundedIcon from '@mui/icons-material/TipsAndUpdatesRounded
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 
 //routes
-import { Link as RouterLink } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 
 //firebase
-import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
+import { getAuth, signOut, onAuthStateChanged, type User } from "firebase/auth";
 import { app } from '../../firebase/firebase';
 
 import { useState, useEffect } from 'react'
@@ -32,6 +32,7 @@ import { ColorModeContext } from '../../context/ThemeContext';
 const settings = ['Logout'];
 
 function ResponsiveAppBar() {
+  const navigate = useNavigate()
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [user, setUser] = useState<User | null>(null)
@@ -52,8 +53,18 @@ function ResponsiveAppBar() {
 
 
   const handleCloseUserMenu = () => {
+
     setAnchorElUser(null);
   };
+
+const handleLogout = async () => {
+  const auth = getAuth(app);
+  await signOut(auth); 
+  localStorage.removeItem("user");
+  handleCloseUserMenu();
+  navigate("/login");
+};
+
   getAuth(app);
 
 
@@ -119,20 +130,10 @@ function ResponsiveAppBar() {
               </MenuItem>
               {settings.map((setting) => (
 
-                <MenuItem key={setting} onClick={handleCloseUserMenu} sx={{ textAlign: 'end' }}>
-                  {
-                    mode === "dark" ? (
-                      
-                    <Typography>
-                      <RouterLink to={'/login'} style={{ textDecoration: 'none', color: 'white' }}>{setting}</RouterLink>
-                    </Typography>
-                    ) : (
-                    <Typography>
-                      <RouterLink to={'/login'} style={{ textDecoration: 'none', color: 'black' }}>{setting}</RouterLink>
-                    </Typography>
-
-                    )
-                  }
+                <MenuItem key={setting} onClick={handleLogout} sx={{ textAlign: 'end' }}>
+                  <Typography style={{ color: mode === "dark" ? "white" : "black" }}>
+                    {setting}
+                  </Typography>
                 </MenuItem>
 
               ))}

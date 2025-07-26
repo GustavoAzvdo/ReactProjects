@@ -40,6 +40,7 @@ const Login = () => {
         setLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            localStorage.setItem("user", JSON.stringify(auth.currentUser))
 
             // Usuário autenticado, redireciona para home
             setTimeout(() => {
@@ -71,6 +72,13 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if(auth.currentUser) {
+            // signInWithEmailAndPassword(auth, email, password);
+            navigate('/home')
+        }
+    },[])
     return (
         <>
 
