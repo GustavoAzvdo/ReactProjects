@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, CircularProgress, Container, Divider, IconButton, InputAdornment, Link as MuiLink, Stack, TextField, Typography } from '@mui/material'
 import { TipsAndUpdatesRounded, AlternateEmailRounded, Google, SendRounded } from '@mui/icons-material'
-import {  Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, type User, onAuthStateChanged } from "firebase/auth";
 import { app } from '../../firebase/firebase';
 import { useEffect, useState } from 'react';
@@ -40,7 +40,7 @@ const Login = () => {
         setLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            localStorage.setItem("user", JSON.stringify(auth.currentUser))
+
 
             // Usuário autenticado, redireciona para home
             setTimeout(() => {
@@ -74,11 +74,13 @@ const Login = () => {
     };
 
     useEffect(() => {
-        if(auth.currentUser) {
-            // signInWithEmailAndPassword(auth, email, password);
-            navigate('/home')
-        }
-    },[])
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navigate('/home')
+            }
+        });
+        return () => unsubscribe();
+    }, [])
     return (
         <>
 
@@ -123,7 +125,7 @@ const Login = () => {
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             size='small'
-                                            type={ver ? 'text': 'password'}
+                                            type={ver ? 'text' : 'password'}
                                             label='Senha'
                                             variant='outlined'
                                             InputProps={{
@@ -131,16 +133,16 @@ const Login = () => {
                                                     <InputAdornment position="end">
                                                         <IconButton onClick={(_e) => setVer(!ver)}>
                                                             {ver ? (
-                                                                <VisibilityOffRoundedIcon/>
+                                                                <VisibilityOffRoundedIcon />
                                                             ) : (
-                                                                <VisibilityRoundedIcon/>
+                                                                <VisibilityRoundedIcon />
                                                             )}
                                                         </IconButton>
                                                     </InputAdornment>
                                                 )
                                             }}
                                         />
-                                        <Box sx={{display: 'flex', justifyContent: 'end', mt: 1}}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'end', mt: 1 }}>
                                             <MuiLink component={RouterLink} to={'/recuperar-senha'} sx={{ textDecoration: 'none', cursor: 'pointer' }}>
                                                 <Typography color='primary'>Esqueci minha senha</Typography>
                                             </MuiLink>
